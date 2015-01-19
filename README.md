@@ -5,7 +5,7 @@ how each character in a string behaves and is drawn.
 
 ## Usage
 
-The [module]() file should be dropped on your project and required like so:
+The [module](https://github.com/adonaac/popo/blob/master/Text.lua) file should be dropped on your project and required like so:
 
 ```lua
 Text = require 'Text'
