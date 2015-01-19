@@ -115,7 +115,7 @@ text = Text('[Popo](move) [popO](move; rotateScale)', {
 
 ## Init functions
 
-Functions act every update and the character table holds information about each character. If you want to set some state that can be updated or used on the update functions you'll need to use `Init` functions. They're just like normal functions except they have `Init` after their name. So, for instance:
+Functions act every update and the character table holds information about each character. If you want to set some state that can be updated or used on the update functions you'll need to use `Init` functions. They're just like normal functions except they have `Init` after their name and they only receive the [character](#character) table as an argument. So, for instance:
 
 ```lua
 text = Text('[Popo popO](shake)', {
@@ -134,3 +134,104 @@ text = Text('[Popo popO](shake)', {
 ```
 
 ![popo popo 5](http://puu.sh/eIqh7/dec38f3150.gif)
+
+In this example the `shakeInit` function gets called as the text object gets created, which means that for every character in the string, the `anchor_x, anchor_y` attributes are set to their initial positions. Then, the `shake` function gets called every update and uses those values to shake the characters. In the next example, the `Init` function is used to set some state that will then be changed in the update function:
+
+```lua
+text = Text('[Popo popO](textbox)', {
+  font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
+  
+  textboxInit = function(c)
+    c.t = 0
+  end,
+  
+  textbox = function(dt, c)
+    c.t = c.t + dt
+    local r, g, b, a = love.graphics.setColor()
+    love.graphics.setColor(r, g, b, 0)
+    if c.t > c.position*0.2 then
+      love.graphics.setColor(r, g, b, 255)
+    end
+  end
+})
+```
+
+![popo popo 6](http://puu.sh/eIsGD/44c9745d15.gif)
+
+So in this case a textbox effect can be created by setting a time variable for each character and then only drawing that character `(alpha = 255)` if this time is over a certain value based on its string position.
+
+## Passing values to functions
+
+Values can also be passed to functions that are defined to receive them:
+
+```lua
+text = Text('[Popo popO](color: 222, 222, 222)', {
+  font = love.graphics.setFont('DJB Almost Perfect.ttf', 72),
+  
+  color = function(dt, c, r, g, b)
+    local n_characters = #c.str_text
+    local i = n_characters - c.position
+    love.graphics.setColor(32 + i*16*r/255, 32 + i*16*g/255, 32 + i*16*b/255)
+  end
+})
+```
+
+![popo popo 7](http://i.imgur.com/rUDEcRa.png)
+
+And changing the parameters to `color: 222, 111, 222`:
+
+![popo popo 8](http://i.imgur.com/zNb0ST2.png)
+
+Currently values that can be passed are `numbers`, `strings` and `booleans`. I haven't gotten around to implementing tables yet.
+
+## Syntax
+
+`[]:` brackets are used to envelop a piece of text so that functions can be applied to it
+
+`():` parenthesis envelop the functions which specify how the text behaves, they must come right after the brackets
+
+`(function):` functions with no arguments simply need their name specified
+
+`(function1; function2):` multiple functions applied to the same brackets are separated by `;`
+
+`(function: arg1, arg2, ..., argn):` multiple arguments are separated by `,`, and they start after a `:`
+
+`(function1: arg1, arg2; function2: arg1):` multiple functions with arguments just follow the previous definitions
+
+`@:` the `@` character is used to escape special characters in text, for instance:
+
+```lua
+text = Text('@[Popo popO@]')
+```
+
+Will produce `[Popo popO]`. To escape `@` itself use `@@`.
+
+## Text
+
+The text object has a few variables that can be specified on its configuration table that might be useful:
+
+`font:` sets the font to be used
+
+`line_height:` the actual line height drawn in pixels is the multiplication of this number by the font height 
+
+`wrap_width:` maximum width in pixels that this text can go, after that it will wrap to the next line
+
+## Character
+
+Similarly, the character table has a few variables that might be useful:
+
+`x, y:` the x, y position of the character
+
+`character:` the character string
+
+`position:` this character's position in relation to the entire string, starts at `1`
+
+`text:` reference to the text object
+
+`str_text:` the text this character belongs to (a string)
+
+`line:` the line number this character belongs to if the text has more than one line
+
+## LICENSE
+
+You can do whatever you want with this. See the [LICENSE](https://github.com/adonaac/popo/blob/master/LICENSE).
