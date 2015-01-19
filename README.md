@@ -135,7 +135,7 @@ text = Text('[Popo popO](shake)', {
 
 ![popo popo 5](http://puu.sh/eIqh7/dec38f3150.gif)
 
-In this example the `shakeInit` function gets called as the text object gets created, which means that for every character in the string, the `anchor_x, anchor_y` attributes are set to their initial positions. Then, the `shake` function gets called every update and uses those values to shake the characters. In the next example, the `Init` function is used to set some state that will then be changed in the update function:
+In this example the `shakeInit` function gets called as the text object gets created, which means that for every character in the string, the `anchor_x, anchor_y` attributes are set to the character's initial positions. Then, the `shake` function gets called every update and uses those values to shake the characters. In the next example, the `Init` function is used to set some state that will then be changed in the update function:
 
 ```lua
 text = Text('[Popo popO](textbox)', {
