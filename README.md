@@ -51,7 +51,7 @@ end
 When creating a text object, a table can be passed as the second argument (after the text string) to specify settings for this text. One of those settings allows to change the text's font:
 
 ```lua
-text = Text('Popo popO, {
+text = Text('Popo popO', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
 })
 ```
