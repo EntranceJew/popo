@@ -194,7 +194,7 @@ Currently values that can be passed are `numbers`, `strings` and `booleans`. I h
 
 `(function1; function2):` multiple functions applied to the same brackets are separated by `;`
 
-`(function: arg1, arg2, ..., argn):` multiple arguments are separated by `,`, and they start after a `:`
+`(function: arg1, arg2, ..., argn):` multiple arguments are separated by `,` and start after a `:`
 
 `(function1: arg1, arg2; function2: arg1):` multiple functions with arguments just follow the previous definitions
 
