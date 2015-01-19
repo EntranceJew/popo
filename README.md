@@ -22,7 +22,7 @@ An object is returned and from that you can create multiple text objects.
   * [Multiple functions](#multiple-functions)
   * [Init functions](#init-functions)
   * [Passing values to functions](#passing-parameters-to-functions)
-  * [Syntax](#syntax)
+* [Syntax](#syntax)
 * [Text](#text)
 * [Character](#character)
 
