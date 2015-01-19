@@ -19,6 +19,8 @@ An object is returned and from that you can create multiple text objects.
   * [Creating a text object](#creating-a-text-object)
   * [Fonts](#fonts)
   * [Functions](#functions)
+  * [Multiple functions](#multiple-functions)
+  * [Init functions](#init-functions)
   * [Passing parameters to functions](#passing-parameters-to-functions)
 * [Text](#text)
 * [Character](#character)
@@ -49,9 +51,27 @@ When creating a text object, a table can be passed as the second argument (after
 
 ```lua
 function love.load()
-  local font = love.graphics.newFont('.ttf', 48)
-  text = Text('Test text', {font = font})
+  text = Text('Test text', {
+    font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
+  })
+end
+```
+![Test text](http://i.imgur.com/ALEbEXv.png)
+
+## Functions
+
+You can also create functions that will change the text in some way:
+
+```lua
+function love.load()
+  text = Text('[Test text](randomColor)', {
+    randomColor = function(dt, c)
+      love.graphics.setColor(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+    end
+  })
 end
 ```
 
-## Functions
+And that should do this:
+
+![Test text 2](http://puu.sh/eIhNN/46ea9adc58.gif)
