@@ -66,7 +66,7 @@ text = Text('[Popo popO](randomColor)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
   
   randomColor = function(dt, c)
-    love.graphics.setColor(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+    love.graphics.setColor(math.random(32, 222), math.random(32, 222), math.random(32, 222))
   end
 })
 ```
