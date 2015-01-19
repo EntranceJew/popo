@@ -222,6 +222,10 @@ Similarly, the character table has a few variables that might be useful:
 
 `x, y:` the x, y position of the character
 
+`r:` this character's rotation, isn't set to anything initially
+
+`sx, sy:` this character's x and y scales, aren't set to anything initially
+
 `character:` the character string
 
 `position:` this character's position in relation to the entire string, starts at `1`
