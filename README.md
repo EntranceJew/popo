@@ -204,7 +204,7 @@ Currently values that can be passed are `numbers`, `strings` and `booleans`. I h
 text = Text('@[Popo popO@]')
 ```
 
-Will produce `[Popo popO]`. To escape `@` itself use `@@`. It's also used for to break into a new line via `@n`.
+Will produce `[Popo popO]`. To escape `@` itself use `@@`. It's also used to break into a new line via `@n`.
 
 ## Text
 
