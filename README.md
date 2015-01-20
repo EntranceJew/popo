@@ -147,7 +147,7 @@ text = Text('[Popo popO](textbox)', {
   
   textbox = function(dt, c)
     c.t = c.t + dt
-    local r, g, b, a = love.graphics.setColor()
+    local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(r, g, b, 0)
     if c.t > c.position*0.2 then
       love.graphics.setColor(r, g, b, 255)
