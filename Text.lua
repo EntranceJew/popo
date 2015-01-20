@@ -17,6 +17,7 @@ function Text.new(text, settings)
     local settings = settings or {}
     for k, v in pairs(settings) do self[k] = v end
 
+    text = string.gsub(text, '\n', '@n')
     self.text = text
     self.config = settings
     if not self.font then self.font = love.graphics.getFont() end
