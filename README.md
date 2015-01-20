@@ -204,7 +204,7 @@ Currently values that can be passed are `numbers`, `strings` and `booleans`. I h
 text = Text('@[Popo popO@]')
 ```
 
-Will produce `[Popo popO]`. To escape `@` itself use `@@`.
+Will produce `[Popo popO]`. To escape `@` itself use `@@`. It's also used for to break into a new line via `@n`.
 
 ## Text
 
@@ -215,6 +215,10 @@ The text object has a few variables that can be specified on its configuration t
 `line_height:` the actual line height drawn in pixels is the multiplication of this number by the font height 
 
 `wrap_width:` maximum width in pixels that this text can go, after that it will wrap to the next line
+
+`config:` reference to the configuration table passed on this text object's creation
+
+`str_text:` the text string as it will be printed on the screen
 
 ## Character
 

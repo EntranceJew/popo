@@ -18,6 +18,7 @@ function Text.new(text, settings)
     for k, v in pairs(settings) do self[k] = v end
 
     self.text = text
+    self.config = settings
     if not self.font then self.font = love.graphics.getFont() end
 
     -- Store modifier names and parameters in m
@@ -361,6 +362,8 @@ function Text.new(text, settings)
     end
     print()
     ]]--
+
+    self.str_text = stripped_text
 
     self.characters = {}
     local str = ""
