@@ -1,5 +1,7 @@
+local text_path = tostring(...):sub(1, -5)
 local Text = {}
 Text.__index = Text
+require(text_path .. 'utf8')
 
 local tableContains = function(t, value)
     for k, v in pairs(t) do
@@ -25,9 +27,9 @@ function Text.new(text, settings)
     -- Store modifier names and parameters in m
     local m = {}
     local i = 1
-    while i <= text:len() do
-        local c = text:sub(i, i)
-        local d = text:sub(i+1, i+1)
+    while i <= text:utf8len() do
+        local c = text:utf8sub(i, i)
+        local d = text:utf8sub(i+1, i+1)
 
         if c == '@' and (d == '[' or d == ']' or d == '(' or d == ')' or d == '@' or d == 'n') then i = i + 1 end
 
@@ -40,15 +42,15 @@ function Text.new(text, settings)
             local j = 0
             while finding_pair do
                 j = j + 1
-                local d = text:sub(i+j, i+j) 
-                local e = text:sub(i+j+1, i+j+1)
+                local d = text:utf8sub(i+j, i+j) 
+                local e = text:utf8sub(i+j+1, i+j+1)
                 if d == '@' and (e == '[' or e == ']' or e == '(' or e == ')' or e == '@' or e == 'n') then j = j + 1 end
                 if d == '[' then delimiter_ignore = delimiter_ignore + 1 end -- [ inside [, delimiter_ignore++ to ignore next ]
                 if d == ']' and delimiter_ignore == 0 then finding_pair = false end -- reached the final pairing ], end loop
                 if d == ']' and delimiter_ignore > 0 then delimiter_ignore = delimiter_ignore - 1 end -- ignore ] if delimiter_ignore > 0 
             end
             modifier.end_text_delimiter = i+j
-            modifier.text = text:sub(modifier.init_text_delimiter+1, modifier.end_text_delimiter-1)
+            modifier.text = text:utf8sub(modifier.init_text_delimiter+1, modifier.end_text_delimiter-1)
             local k = i+j+1
             modifier.init_modifier_delimiter = k
             -- Look for pairing ')'
@@ -56,11 +58,11 @@ function Text.new(text, settings)
             j = 0
             while finding_pair do
                 j = j + 1
-                local d = text:sub(k+j, k+j)
+                local d = text:utf8sub(k+j, k+j)
                 if d == ')' then finding_pair = false end -- reached the final pairing ), end loop
             end
             modifier.end_modifier_delimiter = k+j
-            modifier.modifier_text = text:sub(modifier.init_modifier_delimiter+1, modifier.end_modifier_delimiter-1)
+            modifier.modifier_text = text:utf8sub(modifier.init_modifier_delimiter+1, modifier.end_modifier_delimiter-1)
             table.insert(m, modifier)
         end
         i = i + 1
@@ -81,7 +83,7 @@ function Text.new(text, settings)
     for i, w in ipairs(m) do
         if w.text:find('[', 1, true) then
             local j, k = w.text:find('[', 1, true) 
-            if (w.text:sub(j-1, j-1) == '@' and w.text:sub(j-2, j-2) == '@') or (w.text:sub(j-1, j-1) ~= '@') then
+            if (w.text:utf8sub(j-1, j-1) == '@' and w.text:utf8sub(j-2, j-2) == '@') or (w.text:utf8sub(j-1, j-1) ~= '@') then
                 for j, in_w in ipairs(m) do
                     if in_w.init_text_delimiter > w.init_text_delimiter and
                        in_w.end_text_delimiter < w.end_text_delimiter then
@@ -111,9 +113,9 @@ function Text.new(text, settings)
             i = modifier.text:find('@', j+1, true)
             if i then 
                 j = i
-                local c = modifier.text:sub(i+1, i+1)
+                local c = modifier.text:utf8sub(i+1, i+1)
                 if c == '(' or c == ')' or c == '[' or c == ']' or c == '@' or c == 'n' then
-                    modifier.text = modifier.text:sub(1, i-1) .. modifier.text:sub(i+1)
+                    modifier.text = modifier.text:utf8sub(1, i-1) .. modifier.text:utf8sub(i+1)
                 end
             else j = nil end
         end
@@ -133,10 +135,10 @@ function Text.new(text, settings)
         while i do
             i = w.modifier_text:find(';', i+1, true)
             if i then
-                table.insert(w.modifiers, w.modifier_text:sub(j+1, i-1))
+                table.insert(w.modifiers, w.modifier_text:utf8sub(j+1, i-1))
                 j = i
             else
-                table.insert(w.modifiers, w.modifier_text:sub(j+1, w.modifier_text:len())) 
+                table.insert(w.modifiers, w.modifier_text:utf8sub(j+1, w.modifier_text:utf8len())) 
             end
         end
     end
@@ -157,16 +159,16 @@ function Text.new(text, settings)
             if u:find(':', 1, true) then
                 local mod_params = {}
                 local i = u:find(':', 1, true)
-                table.insert(mod_params, u:sub(1, i-1))
-                local params = u:sub(i+1, u:len())
+                table.insert(mod_params, u:utf8sub(1, i-1))
+                local params = u:sub(i+1, u:utf8len())
                 local j, k = 0, 0
                 while j do
                     j = params:find(',', j+1, true)
                     if j then
-                        table.insert(mod_params, params:sub(k+1, j-1))
+                        table.insert(mod_params, params:utf8sub(k+1, j-1))
                         k = j
                     else
-                        table.insert(mod_params, params:sub(k+1, params:len()))
+                        table.insert(mod_params, params:utf8sub(k+1, params:utf8len()))
                     end
                 end
                 w.modifiers[b] = mod_params
@@ -202,8 +204,8 @@ function Text.new(text, settings)
     local modifier_delimiter = 0
     local i = 1
     while i <= text:len() do
-        local c = text:sub(i, i)
-        local d = text:sub(i+1, i+1)
+        local c = text:utf8sub(i, i)
+        local d = text:utf8sub(i+1, i+1)
         if c == '[' then delimiter = delimiter + 1 end
         if c == ']' then delimiter = delimiter - 1 end
         if c == '(' then modifier_delimiter = modifier_delimiter + 1 end
@@ -369,8 +371,8 @@ function Text.new(text, settings)
     self.characters = {}
     local str = ""
     local line = 0
-    for i = 1, stripped_text:len() do
-        local c = stripped_text:sub(i, i)
+    for i = 1, stripped_text:utf8len() do
+        local c = stripped_text:utf8sub(i, i)
         local modifiers = {}
         for _, w in ipairs(m) do
             if i >= w.init_text_delimiter and i <= w.end_text_delimiter then
@@ -390,7 +392,7 @@ function Text.new(text, settings)
         
         -- Move to new line if over wrap_width
         if self.wrap_width then
-            local w = self.font:getWidth(str .. stripped_text:sub(i+1, i+1))
+            local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
             if w > self.wrap_width then 
                 line = line + 1
                 str = ""
@@ -418,13 +420,13 @@ function Text.new(text, settings)
                             local n = k:find('Init', 1, true)
                             local params = {}
                             for i = 2, #modifier do table.insert(params, modifier[i]) end
-                            if modifier[1] == k:sub(1, n-1) and not tableContains(called_functions, k) then 
+                            if modifier[1] == k:utf8sub(1, n-1) and not tableContains(called_functions, k) then 
                                 v(c, unpack(params)) 
                                 table.insert(called_functions, k)
                             end
                         else 
                             local n = k:find('Init', 1, true)
-                            if modifier == k:sub(1, n-1) and not tableContains(called_functions, k) then 
+                            if modifier == k:utf8sub(1, n-1) and not tableContains(called_functions, k) then 
                                 v(c) 
                                 table.insert(called_functions, k)
                             end
