@@ -6,8 +6,9 @@ require(text_path .. 'utf8-l')
 local tableContains = function(t, value) for k, v in pairs(t) do if v == value then return true end end end
 local stringToAny = function(str) return loadstring("return " .. str)() end
 
-function Text.new(text, settings)
+function Text.new(x, y, text, settings)
     local self = {}
+    self.x, self.y = x, y
     local settings = settings or {}
     for k, v in pairs(settings) do self[k] = v end
 
@@ -371,7 +372,6 @@ function Text.new(text, settings)
                 modifiers = w.modifiers
             end
         end
-        str = str .. c
 
         -- Move to new line if got to a @n
         for j, p in ipairs(new_line_positions) do
@@ -382,12 +382,9 @@ function Text.new(text, settings)
         end
         local text_w = self.font:getWidth(str)
         
-        -- Move to new line if over wrap_width but only if the next character is a space and the next word is over wrap_width
+        -- Move to new line if over wrap_width
         if self.wrap_width then
             local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
-            local c_next = stripped_text:utf8sub(i+1, i+1)
-            local until_next_word = stripped_text:sub(i+2, stripped_text:sub(i+1, stripped_text:utf8len()):find(' '))
-            -- print(until_next_word)
             if w > self.wrap_width then 
                 line = line + 1
                 str = ""
@@ -396,10 +393,11 @@ function Text.new(text, settings)
         text_w = self.font:getWidth(str)
         local w = self.font:getWidth(c)
 
-        local char_struct = {position = i, character = c, text = self, str_text = stripped_text, x = text_w - w/2, 
+        local char_struct = {position = i, character = c, text = self, str_text = stripped_text, x = text_w, 
                              y = 0 + line*(self.line_height or 1)*self.font:getHeight(),
                              modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
         table.insert(self.characters, char_struct)
+        str = str .. c
     end
 
     self.dt = 0
@@ -439,13 +437,11 @@ function Text:update(dt)
     self.dt = dt
 end
 
-function Text:draw(x, y)
+function Text:draw()
     local font = love.graphics.getFont()
     love.graphics.setFont(self.font or font)
 
     for _, c in ipairs(self.characters) do
-        c.x_offset = x
-        c.y_offset = y
         -- Call each modifier function
         local called_functions = {}
         for _, modifier in ipairs(c.modifiers) do
@@ -470,7 +466,7 @@ function Text:draw(x, y)
             end
         end
         local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
-        love.graphics.print(c.character, x + c.x + 0.5, y + c.y, c.r or 0, c.sx or 1, c.sy or 1, c_w/2 + 0.5, c_h/2)
+        love.graphics.print(c.character, self.x + c.x, self.y + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
     end
     love.graphics.setFont(font)
 end
