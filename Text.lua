@@ -385,17 +385,22 @@ function Text.new(x, y, text, settings)
         -- Move to new line if over wrap_width
         if self.wrap_width then
             local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
-            if w > self.wrap_width then 
-                line = line + 1
-                str = ""
+            local previous_c = stripped_text:utf8sub(i-1, i-1)
+            if previous_c == ' ' then
+                local t = stripped_text:utf8sub(i, stripped_text:utf8len())
+                local next_word = t:utf8sub(1, t:find(' '))
+                local tw = self.font:getWidth(str .. next_word)
+                if tw > self.wrap_width then
+                    line = line + 1
+                    str = ""
+                end
             end
         end
         text_w = self.font:getWidth(str)
         local w = self.font:getWidth(c)
 
         local char_struct = {position = i, character = c, text = self, str_text = stripped_text, x = text_w, 
-                             y = 0 + line*(self.line_height or 1)*self.font:getHeight(),
-                             modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
+                             y = 0 + line*(self.line_height or 1)*self.font:getHeight(), modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
         table.insert(self.characters, char_struct)
         str = str .. c
     end
