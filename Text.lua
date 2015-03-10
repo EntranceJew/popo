@@ -400,9 +400,65 @@ function Text.new(x, y, text, settings)
         local w = self.font:getWidth(c)
 
         local char_struct = {position = i, character = c, text = self, str_text = stripped_text, x = text_w, 
-                             y = 0 + line*(self.line_height or 1)*self.font:getHeight(), modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
+                             y = 0 + line*(self.line_height or 1)*self.font:getHeight(), 
+                             modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
         table.insert(self.characters, char_struct)
         str = str .. c
+    end
+
+    -- Set alignment
+    if self.wrap_width then
+        if self.align_right then
+            for i = 0, line do
+                local s = ''
+                for j, c in ipairs(self.characters) do
+                    if c.character == ' ' and self.characters[j+1] and self.characters[j+1].line == i+1 then break end
+                    if c.line == i then s = s .. c.character end
+                end
+                local w = self.font:getWidth(s)
+                local add_x = self.wrap_width - w
+                for _, c in ipairs(self.characters) do
+                    if c.line == i then c.x = c.x + add_x end
+                end
+            end
+
+        elseif self.align_center then
+            for i = 0, line do
+                local s = ''
+                for j, c in ipairs(self.characters) do
+                    if c.character == ' ' and self.characters[j+1] and self.characters[j+1].line == i+1 then break end
+                    if c.line == i then s = s .. c.character end
+                end
+                local w = self.font:getWidth(s)
+                local add_x = (self.wrap_width - w)/2
+                for _, c in ipairs(self.characters) do
+                    if c.line == i then c.x = c.x + add_x end
+                end
+            end
+
+        elseif self.justify then
+            for i = 0, line do
+                local s = ''
+                local spaces = 0
+                local lines_end = {}
+                for j, c in ipairs(self.characters) do
+                    if i == line and j == #self.characters then lines_end[i] = j; break end
+                    if c.character == ' ' and self.characters[j+1] and self.characters[j+1].line == i+1 then lines_end[i] = j; break end
+                    if c.line == i then s = s .. c.character end
+                    if c.line == i and c.character == ' ' then spaces = spaces + 1 end
+                end
+                local w = self.font:getWidth(s)
+                if i == line then spaces = spaces + 1 end
+                local add_x = (self.wrap_width - w)/spaces
+                for j, c in ipairs(self.characters) do
+                    if c.line == i and c.character == ' ' then 
+                        for k = j+1, lines_end[i] do
+                            self.characters[k].x = self.characters[k].x + add_x
+                        end
+                    end
+                end
+            end
+        end
     end
 
     self.dt = 0
