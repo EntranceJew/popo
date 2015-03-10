@@ -534,7 +534,7 @@ function Text:draw()
             end
         end
         if regular_font then love.graphics.setFont(self.font) end
-        local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
+        -- local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
         love.graphics.print(c.character, self.x + c.x, self.y + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
     end
     love.graphics.setFont(font)
