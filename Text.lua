@@ -446,8 +446,10 @@ function Text:draw()
     local font = love.graphics.getFont()
     love.graphics.setFont(self.font or font)
 
+    local regular_font = true
     for _, c in ipairs(self.characters) do
         -- Call each modifier function
+        regular_font = true
         local called_functions = {}
         for _, modifier in ipairs(c.modifiers) do
             if type(modifier) == 'table' then
@@ -465,11 +467,17 @@ function Text:draw()
                 if not self[modifier] and not self[modifier .. 'Init'] then
                     error("undefined function: " .. modifier)
                 elseif self[modifier] and not tableContains(called_functions, modifier) then 
-                    self[modifier](self.dt, c) 
-                    table.insert(called_functions, modifier)
+                    if type(modifier) == 'function' then
+                        self[modifier](self.dt, c) 
+                        table.insert(called_functions, modifier)
+                    else
+                        love.graphics.setFont(self[modifier])
+                        regular_font = false
+                    end
                 end
             end
         end
+        if regular_font then love.graphics.setFont(self.font) end
         local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
         love.graphics.print(c.character, self.x + c.x, self.y + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
     end
