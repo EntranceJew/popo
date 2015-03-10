@@ -1,6 +1,14 @@
-v0.0.1
+v0.0.2
 
 ## CHANGELOG
+
+### v0.0.2
+
+#### Additions
+
+* Added options for changing fonts mid text (bold, italic, ...) - [24e6936](https://github.com/adonaac/popo/commit/24e69368a9ad1cb8e869b58e76a91b77295ba4fb) (2015-03-10 04:56:49)
+
+---
 
 ### v0.0.1
 
