@@ -5,7 +5,7 @@ how each character in a string behaves and is drawn.
 
 ## Usage
 
-The [module](https://github.com/adonaac/popo/blob/master/Text.lua) and the [utf8](https://github.com/adonaac/popo/blob/master/utf8.lua) files should be dropped on your project and required like so:
+The [module](https://github.com/adonaac/popo/blob/master/Text.lua) and the [utf8-l](https://github.com/adonaac/popo/blob/master/utf8-l.lua) files should be dropped on your project and required like so:
 
 ```lua
 Text = require 'Text'
@@ -34,7 +34,7 @@ Creates a text object and then updates and draws it:
 
 ```lua
 function love.load()
-  text = Text('Test text')
+  text = Text(10, 10, 'Test text')
 end
 
 function love.update(dt)
@@ -42,7 +42,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  text:draw(10, 10)
+  text:draw()
 end
 ```
 
@@ -51,18 +51,28 @@ end
 When creating a text object, a table can be passed as the second argument (after the text string) to specify settings for this text. One of those settings allows to change the text's font:
 
 ```lua
-text = Text('Popo popO', {
+text = Text(10, 10, 'Popo popO', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
 })
 ```
 ![popo popo 1](http://i.imgur.com/8viUw9k.png)
+
+You can use multiple fonts by adding a new font to the configuration table like this:
+
+```lua
+text = Text(10, 10, '[Popo](bold) [popO](italic)', {
+  font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
+  bold = love.graphics.newFont('DJB Almost Perfect Bold.ttf', 72),
+  italic = love.graphics.newFont('DJB Almost Perfect Italic.ttf', 72),
+})
+```
 
 ## Functions
 
 You can also create functions that will change the text in some way:
 
 ```lua
-text = Text('[Popo popO](randomColor)', {
+text = Text(10, 10, '[Popo popO](randomColor)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
   
   randomColor = function(dt, c)
@@ -78,7 +88,7 @@ And that should do this:
 All functions defined in this way receive two arguments: `dt` and `c`. The first is just the normal `dt` you see in update functions, the second is the [character](#character) table, which contains general information about the current character. For instance, if we want to make the character move randomly based on how big its position is in the text string (meaning characters more to the right will move more):
 
 ```lua
-text = Text('[Popo popO](move)', {
+text = Text(10, 10, '[Popo popO](move)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
   
   move = function(dt, c)
@@ -95,7 +105,7 @@ text = Text('[Popo popO](move)', {
 Multiple functions can operate on a single piece of text and multiple pieces of text be created:
 
 ```lua
-text = Text('[Popo](move) [popO](move; rotateScale)', {
+text = Text(10, 10, '[Popo](move) [popO](move; rotateScale)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
 
   move = function(dt, c)
@@ -118,7 +128,7 @@ text = Text('[Popo](move) [popO](move; rotateScale)', {
 Functions act every update and the character table holds information about each character. If you want to set some state that can be updated or used on the update functions you'll need to use `Init` functions. They're just like normal functions except they have `Init` after their name and they only receive the [character](#character) table as an argument. So, for instance:
 
 ```lua
-text = Text('[Popo popO](shake)', {
+text = Text(10, 10, '[Popo popO](shake)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
   
   shakeInit = function(c)
@@ -138,7 +148,7 @@ text = Text('[Popo popO](shake)', {
 In this example the `shakeInit` function gets called as the text object gets created, which means that for every character in the string, the `anchor_x, anchor_y` attributes are set to the character's initial positions. Then, the `shake` function gets called every update and uses those values to shake the characters. In the next example, the `Init` function is used to set some state that will then be changed in the update function:
 
 ```lua
-text = Text('[Popo popO](textbox)', {
+text = Text(10, 10, '[Popo popO](textbox)', {
   font = love.graphics.newFont('DJB Almost Perfect.ttf', 72),
   
   textboxInit = function(c)
@@ -165,7 +175,7 @@ So in this case a textbox effect can be created by setting a time variable for e
 Values can also be passed to functions that are defined to receive them:
 
 ```lua
-text = Text('[Popo popO](color: 222, 222, 222)', {
+text = Text(10, 10, '[Popo popO](color: 222, 222, 222)', {
   font = love.graphics.setFont('DJB Almost Perfect.ttf', 72),
   
   color = function(dt, c, r, g, b)
@@ -219,6 +229,12 @@ The text object has a few variables that can be specified on its configuration t
 `config:` reference to the configuration table passed on this text object's creation
 
 `str_text:` the text string as it will be printed on the screen
+
+`align_right:` if `wrap_width` is set, will align text to the right if set to `true`
+
+`align_center:` if `wrap_width` is set, will align text to the center if set to `true`
+
+`justify:` if `wrap_width` is set, will align text to be perfectly aligned to both left and right if set to `true`
 
 ## Character
 
