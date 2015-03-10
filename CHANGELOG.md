@@ -1,6 +1,14 @@
-v0.0.2
+v0.0.3
 
 ## CHANGELOG
+
+### v0.0.3
+
+#### Additions
+
+* Added align right, center and justify - [88cd9dc](https://github.com/adonaac/popo/commit/88cd9dca1305d922c9e4cb5aa3cd6089b1ebed81) (2015-03-10 06:57:06)
+
+---
 
 ### v0.0.2
 
