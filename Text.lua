@@ -1,21 +1,13 @@
 local text_path = tostring(...):sub(1, -5)
 local Text = {}
 Text.__index = Text
-require(text_path .. 'utf8')
+require(text_path .. 'utf8-l')
 
-local tableContains = function(t, value)
-    for k, v in pairs(t) do
-        if v == value then return true end
-    end
-end
-
-local stringToAny = function(str)
-    return loadstring("return " .. str)()
-end
+local tableContains = function(t, value) for k, v in pairs(t) do if v == value then return true end end end
+local stringToAny = function(str) return loadstring("return " .. str)() end
 
 function Text.new(text, settings)
     local self = {}
-
     local settings = settings or {}
     for k, v in pairs(settings) do self[k] = v end
 
@@ -390,9 +382,12 @@ function Text.new(text, settings)
         end
         local text_w = self.font:getWidth(str)
         
-        -- Move to new line if over wrap_width
+        -- Move to new line if over wrap_width but only if the next character is a space and the next word is over wrap_width
         if self.wrap_width then
             local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
+            local c_next = stripped_text:utf8sub(i+1, i+1)
+            local until_next_word = stripped_text:sub(i+2, stripped_text:sub(i+1, stripped_text:utf8len()):find(' '))
+            -- print(until_next_word)
             if w > self.wrap_width then 
                 line = line + 1
                 str = ""
