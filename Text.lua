@@ -384,6 +384,7 @@ function Text.new(x, y, text, settings)
         
         -- Move to new line if over wrap_width
         if self.wrap_width then
+            local w0 = self.font:getWidth(str .. stripped_text:utf8sub(i, i))
             local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
             local previous_c = stripped_text:utf8sub(i-1, i-1)
             if previous_c == ' ' then
@@ -394,6 +395,9 @@ function Text.new(x, y, text, settings)
                     line = line + 1
                     str = ""
                 end
+            elseif w0 > self.wrap_width then
+                line = line + 1
+                str = ""
             end
         end
         text_w = self.font:getWidth(str)
