@@ -1,6 +1,16 @@
-v0.1.0
+v0.1.1
 
 ## CHANGELOG
+
+### v0.1.1
+
+
+#### Fixes
+
+* Fixed wrapping not behaving properly when a line has no spaces in it - [6b9098c](https://github.com/adonaac/popo/commit/6b9098c3b413a9edcc6a8fd0946cdea956d56158) (2015-03-17 09:27:07)
+* Fixed font selection issues - [6e10928](https://github.com/adonaac/popo/commit/6e10928b9308369cc68322bc966e9d556c968c19) (2015-03-23 09:56:06)
+
+---
 
 ### v0.1.0
 
