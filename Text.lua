@@ -502,7 +502,7 @@ function Text:update(dt)
     self.dt = dt
 end
 
-function Text:draw()
+function Text:draw(x, y)
     local font = love.graphics.getFont()
     love.graphics.setFont(self.font or font)
 
@@ -527,7 +527,7 @@ function Text:draw()
                 if not self[modifier] and not self[modifier .. 'Init'] then
                     error("undefined function: " .. modifier)
                 elseif self[modifier] and not tableContains(called_functions, modifier) then 
-                    if type(modifier) == 'function' then
+                    if type(modifier) == 'function' or type(self[modifier]) == 'function' then
                         self[modifier](self.dt, c) 
                         table.insert(called_functions, modifier)
                     else
@@ -539,7 +539,7 @@ function Text:draw()
         end
         if regular_font then love.graphics.setFont(self.font) end
         -- local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
-        love.graphics.print(c.character, self.x + c.x, self.y + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
+        love.graphics.print(c.character, (x or self.x) + c.x, (y or self.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
     end
     love.graphics.setFont(font)
 end
