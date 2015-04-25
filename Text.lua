@@ -541,7 +541,7 @@ function Text:draw(x, y)
         -- local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
         love.graphics.print(c.character, (x or self.x) + c.x, (y or self.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
     end
-    love.graphics.setFont(font)
+    if not font == nil then love.graphics.setFont(font) end
 end
 
 return setmetatable({new = new}, {__call = function(_, ...) return Text.new(...) end})
