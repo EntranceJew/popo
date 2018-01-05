@@ -1,6 +1,20 @@
-v0.1.1
+v0.1.2
 
 ## CHANGELOG
+
+### v0.1.2
+
+#### Additions
+
+* Added new_line_positions variable and made it public - [d45ea20](https://github.com/adonaac/popo/commit/d45ea20ad9709c7cbec63f55216ee0dab080f1be) (2015-07-16 20:51:50)
+* Added n_lines variable and made it public - [d45ea20](https://github.com/adonaac/popo/commit/d45ea20ad9709c7cbec63f55216ee0dab080f1be) (2015-07-16 20:51:50)
+* Added character custom drawing option - [d45ea20](https://github.com/adonaac/popo/commit/d45ea20ad9709c7cbec63f55216ee0dab080f1be) (2015-07-16 20:51:50)
+
+#### Fixes
+
+* Fixed some new line issues where new lines were being treated inconsistently depending on what caused it (wrap width or @n) - [d45ea20](https://github.com/adonaac/popo/commit/d45ea20ad9709c7cbec63f55216ee0dab080f1be) (2015-07-16 20:51:50)
+
+---
 
 ### v0.1.1
 

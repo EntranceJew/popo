@@ -1,7 +1,20 @@
+# MIRROR
+
+This project was originally uploaded and has since been deleted, here is my version that I made modifications to work with love 0.10.*, everything below this is the original data.
+
+---
+
+# WARNING
+
+### FULL REWRITE SOON
+
+There will be a full rewrite of this project soon™.
+
+---
+
 # Popo
 
-A character based programmable text module for LÖVE. Simplifies text operations by providing a way for manipulating
-how each character in a string behaves and is drawn.
+A character based programmable text module for LÖVE. Simplifies text operations by providing a way for manipulating how each character in a string behaves and is drawn.
 
 ## Usage
 
@@ -22,6 +35,7 @@ An object is returned and from that you can create multiple text objects.
   * [Multiple functions](#multiple-functions)
   * [Init functions](#init-functions)
   * [Passing values to functions](#passing-parameters-to-functions)
+  * [Custom draw function](#custom-draw-function)
 * [Syntax](#syntax)
 * [Text](#text)
 * [Character](#character)
@@ -42,7 +56,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  text:draw()
+  text:draw(10, 10) -- if x, y are omitted here then it will use the x, y passed in the Text object creation step
 end
 ```
 
@@ -194,6 +208,20 @@ And changing the parameters to `color: 222, 111, 222`:
 
 Currently values that can be passed are `numbers`, `strings` and `booleans`. I haven't gotten around to implementing tables yet.
 
+## Custom draw function
+
+In case you want to have even more control over how each character is drawn you can also specify a custom draw function:
+
+```lua
+text = Text(10, 10, 'Popo popO', {
+  customDraw = function(x, y, c)
+    love.graphics.print(c.character, (x or c.text.x) + c.x, (y or c.text.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
+  end,
+})
+```
+
+This function should be named `customDraw` and it should receive the x, y position as well as the character being drawn. The function above is the default draw call that Popo uses for each character.
+
 ## Syntax
 
 `[]:` brackets are used to envelop a piece of text so that functions can be applied to it
@@ -218,17 +246,21 @@ Will produce `[Popo popO]`. To escape `@` itself use `@@`. It's also used to bre
 
 ## Text
 
-The text object has a few variables that can be specified on its configuration table that might be useful:
+The text object has a few variables that can be specified on its configuration table:
 
-`font:` sets the font to be used
+`font:` sets the font to be used by default. You can also set other types of fonts directly (bold, bold_italic, italic, light, etc) and they will work like a function inside a tag:
 
-`line_height:` the actual line height drawn in pixels is the multiplication of this number by the font height 
+```lua
+text = Text(10, 10, '[Light text](light) [bold + italic text](bold_italic) normal text', {
+  font = love.graphics.setFont('DJB Almost Perfect.ttf', 72),
+  light = love.graphics.setFont('DJB Almost Perfect Light.ttf', 72),
+  bold_italic = love.graphics.setFont('DJB Almost Perfect Bold Italic.ttf', 72),
+})
+```
+
+`line_height:` the actual line height drawn in pixels is the multiplication of this number by the font height, so, for instance, if your font is of size 20 and you want the line height to be a bit bigger than that, like, let's say 28, you want to set `line_height` to `20*x = 28 -> x = 28/20 = 1.4`
 
 `wrap_width:` maximum width in pixels that this text can go, after that it will wrap to the next line
-
-`config:` reference to the configuration table passed on this text object's creation
-
-`str_text:` the text string as it will be printed on the screen
 
 `align_right:` if `wrap_width` is set, will align text to the right if set to `true`
 
@@ -236,9 +268,30 @@ The text object has a few variables that can be specified on its configuration t
 
 `justify:` if `wrap_width` is set, will align text to be perfectly aligned to both left and right if set to `true`
 
+Here's an example of some of those settings being used:
+
+```lua
+text = Text(10, 10, 'Popo popO', {
+  font = love.graphics.setFont('DJB Almost Perfect.ttf', 72),
+  wrap_width = 250,
+  justify = true,
+  line_height = 2,
+})
+```
+
+The text object also has a few read-only variables:
+
+`config:` reference to the configuration table passed on this text object's creation
+
+`str_text:` the text string as it will be printed on the screen
+
+`n_lines:` the number of lines this text has
+
+`new_line_positions:` an array containing all new line positions in the text string, so, for instance, if on the first line of this text the character `24` breaks into a new line because `wrap_width` is set, then the number `24` will be the first value in this array
+
 ## Character
 
-Similarly, the character table has a few variables that might be useful:
+The character table has a few variables that might be useful:
 
 `x, y:` the x, y position of the character
 
@@ -252,7 +305,7 @@ Similarly, the character table has a few variables that might be useful:
 
 `text:` reference to the text object
 
-`str_text:` the text this character belongs to (a string)
+`str_text:` the string representation of the text this character belongs to
 
 `line:` the line number this character belongs to if the text has more than one line
 

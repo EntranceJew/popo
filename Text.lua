@@ -4,7 +4,7 @@ Text.__index = Text
 require(text_path .. 'utf8-l')
 
 local tableContains = function(t, value) for k, v in pairs(t) do if v == value then return true end end end
-local stringToAny = function(str) return loadstring("return " .. str)() end
+local stringToAny = function(str) return ((loadstring("return " .. str) or function() end)() or str)  end
 
 function Text.new(x, y, text, settings)
     local self = {}
@@ -13,9 +13,11 @@ function Text.new(x, y, text, settings)
     for k, v in pairs(settings) do self[k] = v end
 
     text = string.gsub(text, '\n', '@n')
+    text = string.gsub(text, '\r', '@n')
     self.text = text
     self.config = settings
     if not self.font then self.font = love.graphics.getFont() end
+    self.font_multiplier = settings.font_multiplier or 1
 
     -- Store modifier names and parameters in m
     local m = {}
@@ -344,6 +346,39 @@ function Text.new(x, y, text, settings)
         end
     end
 
+    -- Add new line positions when over wrap width
+    local str = ""
+    for i = 1, stripped_text:utf8len() do
+        local c = stripped_text:utf8sub(i, i)
+
+        local new_line_index = nil
+        for _, p in ipairs(new_line_positions) do
+            if i == p-1 then new_line_index = true end
+        end
+
+        if self.wrap_width then
+            local w0 = self.font:getWidth(str .. stripped_text:utf8sub(i, i))*self.font_multiplier
+            local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))*self.font_multiplier
+            local previous_c = stripped_text:utf8sub(i-1, i-1)
+            if previous_c == ' ' then
+                local t = stripped_text:utf8sub(i, stripped_text:utf8len())
+                local next_word = t:utf8sub(1, t:find(' '))
+                local tw = self.font:getWidth(str .. next_word)*self.font_multiplier
+                if tw > self.wrap_width then 
+                    table.insert(new_line_positions, i) 
+                    str = ""
+                end
+            elseif w0 > self.wrap_width then 
+                table.insert(new_line_positions, i) 
+                str = ""
+            end
+        end
+
+        if not new_line_index then str = str .. c
+        else str = "" end
+    end
+    table.sort(new_line_positions, function(a, b) return a < b end)
+
     --[[
     print(stripped_text)
     print()
@@ -360,6 +395,7 @@ function Text.new(x, y, text, settings)
     ]]--
 
     self.str_text = stripped_text
+    self.new_line_positions = new_line_positions
 
     self.characters = {}
     local str = ""
@@ -375,36 +411,18 @@ function Text.new(x, y, text, settings)
 
         -- Move to new line if got to a @n
         for j, p in ipairs(new_line_positions) do
-            if i > p-1 and line < j then 
+            if i == p and line < j then 
                 line = j 
                 str = ""
             end
         end
-        local text_w = self.font:getWidth(str)
-        
-        -- Move to new line if over wrap_width
-        if self.wrap_width then
-            local w0 = self.font:getWidth(str .. stripped_text:utf8sub(i, i))
-            local w = self.font:getWidth(str .. stripped_text:utf8sub(i+1, i+1))
-            local previous_c = stripped_text:utf8sub(i-1, i-1)
-            if previous_c == ' ' then
-                local t = stripped_text:utf8sub(i, stripped_text:utf8len())
-                local next_word = t:utf8sub(1, t:find(' '))
-                local tw = self.font:getWidth(str .. next_word)
-                if tw > self.wrap_width then
-                    line = line + 1
-                    str = ""
-                end
-            elseif w0 > self.wrap_width then
-                line = line + 1
-                str = ""
-            end
-        end
-        text_w = self.font:getWidth(str)
-        local w = self.font:getWidth(c)
+
+        local text_w = self.font:getWidth(str)*self.font_multiplier
+        text_w = self.font:getWidth(str)*self.font_multiplier
+        local w = self.font:getWidth(c)*self.font_multiplier
 
         local char_struct = {position = i, character = c, text = self, str_text = stripped_text, x = text_w, 
-                             y = 0 + line*(self.line_height or 1)*self.font:getHeight(), 
+                             y = 0 + line*(self.line_height or 1)*self.font:getHeight()*self.font_multiplier, 
                              modifiers = modifiers, line = line, pivot = {x = 0, y = 0}}
         table.insert(self.characters, char_struct)
         str = str .. c
@@ -419,7 +437,7 @@ function Text.new(x, y, text, settings)
                     if c.character == ' ' and self.characters[j+1] and self.characters[j+1].line == i+1 then break end
                     if c.line == i then s = s .. c.character end
                 end
-                local w = self.font:getWidth(s)
+                local w = self.font:getWidth(s)*self.font_multiplier
                 local add_x = self.wrap_width - w
                 for _, c in ipairs(self.characters) do
                     if c.line == i then c.x = c.x + add_x end
@@ -433,7 +451,7 @@ function Text.new(x, y, text, settings)
                     if c.character == ' ' and self.characters[j+1] and self.characters[j+1].line == i+1 then break end
                     if c.line == i then s = s .. c.character end
                 end
-                local w = self.font:getWidth(s)
+                local w = self.font:getWidth(s)*self.font_multiplier
                 local add_x = (self.wrap_width - w)/2
                 for _, c in ipairs(self.characters) do
                     if c.line == i then c.x = c.x + add_x end
@@ -451,7 +469,7 @@ function Text.new(x, y, text, settings)
                     if c.line == i then s = s .. c.character end
                     if c.line == i and c.character == ' ' then spaces = spaces + 1 end
                 end
-                local w = self.font:getWidth(s)
+                local w = self.font:getWidth(s)*self.font_multiplier
                 if i == line then spaces = spaces + 1 end
                 local add_x = (self.wrap_width - w)/spaces
                 for j, c in ipairs(self.characters) do
@@ -465,7 +483,33 @@ function Text.new(x, y, text, settings)
         end
     end
 
+    self.n_lines = #new_line_positions + 1
     self.dt = 0
+    self.custom_draw = false
+    self.custom_draw_image = false
+    for k, v in pairs(self) do
+        if type(v) == 'function' and k == 'customDraw' then
+            self.custom_draw = v
+        end
+        if type(v) == 'function' and k == 'customDrawImage' then
+            self.custom_draw_image = v
+        end
+    end
+    
+    -- Set images on the character table now, so that they may be used in Init functions.
+    for k, v in pairs(self) do
+        if type(v) == 'userdata' then
+            if v:type() == 'Image' then
+                for _, c in ipairs(self.characters) do
+                    for _, modifier in ipairs(c.modifiers) do
+                        if modifier == k then
+                            c.image = v
+                        end
+                    end
+                end
+            end
+        end
+    end
 
     -- Call Init functions from TextConfig
     for k, v in pairs(self) do
@@ -530,16 +574,36 @@ function Text:draw(x, y)
                     if type(modifier) == 'function' or type(self[modifier]) == 'function' then
                         self[modifier](self.dt, c) 
                         table.insert(called_functions, modifier)
-                    else
+                    elseif self[modifier]:type() == 'Font' then
                         love.graphics.setFont(self[modifier])
                         regular_font = false
+                    elseif self[modifier]:type() == 'Image' then
+                        -- Do nothing. We don't want to error.
+                        -- The image was set on the character table earlier.
+                    else
+                        error("unsupported modifier type: " .. self[modifier]:type() )
                     end
                 end
             end
         end
         if regular_font then love.graphics.setFont(self.font) end
-        -- local c_w, c_h = self.font:getWidth(c.character), self.font:getHeight()
-        love.graphics.print(c.character, (x or self.x) + c.x, (y or self.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0)
+        local ocolor
+        if c.color then
+            ocolor = {love.graphics.getColor()}
+            love.graphics.setColor(c.color)
+        end
+        if not c.image then
+            if self.custom_draw then self.custom_draw(x or self.x, y or self.y, c)
+            else love.graphics.print(c.character, (x or self.x) + c.x, (y or self.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0) end
+            drew_image_previously = false
+        elseif drew_image_previously ~= true then
+            if self.custom_draw_image then self.custom_draw_image(c.image, x or self.x, y or self.y, c)
+            else love.graphics.draw(c.image, (x or self.x) + c.x, (y or self.y) + c.y, c.r or 0, c.sx or 1, c.sy or 1, 0, 0) end
+            drew_image_previously = true
+        end
+        if c.color then
+            love.graphics.setColor(ocolor)
+        end
     end
     love.graphics.setFont(font)
 end
